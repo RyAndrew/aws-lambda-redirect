@@ -1,0 +1,36 @@
+Transform: AWS::Serverless-2016-10-31
+
+Description:
+  Deploy Lambda Redirect Function
+
+Resources:
+
+  RedirectFunction:
+    Type: 'AWS::Serverless::Function'
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W89
+            reason: "Lambda Functions don't need to be deployed into a VPC."
+    Properties:
+      FunctionName: 'redirect-test'
+      PackageType: Zip
+      InlineCode: |
+          exports.handler = function(event, context) {
+            const response = {
+                status: '302',
+                statusDescription: 'Found',
+                headers: {
+                    location: [{
+                        key: 'Location',
+                        value: 'https://google.com/',
+                    }],
+                },
+            };
+            return response;
+          }
+      ReservedConcurrentExecutions: 0
+      Handler: index.handler
+      Runtime: nodejs16.x
+      Architectures:
+        - x86_64
